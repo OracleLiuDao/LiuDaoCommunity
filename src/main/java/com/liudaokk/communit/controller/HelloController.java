@@ -2,8 +2,7 @@ package com.liudaokk.communit.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -11,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @company:null
  * @date: 2020/3/16 - 14:09
  */
+
 @Controller
 public class HelloController {
-    @RequestMapping("/hello")
-    public String hello(@RequestParam(name = "name") String name, Model model){
+    @GetMapping("/index")
+    public String hello(Model model){
+        String name = "六道";
         model.addAttribute("name",name);
-        return "hello";
+        return "index";
     }
 }
