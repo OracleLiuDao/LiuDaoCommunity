@@ -16,3 +16,7 @@ https://developer.github.com/apps/ git注册登入引入
 
 https://elasticsearch.cn/  参照这个网址写的社区
 
+创建git oauth的流程
+https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/
+
+
