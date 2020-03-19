@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.UUID;
 
@@ -19,6 +22,7 @@ import java.util.UUID;
  * @company:null
  * @date: 2020/3/17 - 17:05
  */
+//授权
 @Controller
 public class AuthorizedController {
     @Autowired
@@ -31,13 +35,15 @@ public class AuthorizedController {
         @Value("${github.Redirect.uri}")
         private String RedirectUri;
         //引入user接口操作sql语句
+        @SuppressWarnings("all")
         @Autowired
         private UserMapper userMapper;
 
         @GetMapping("/callback")
         public String callback(@RequestParam(name="code") String code,
                                @RequestParam(name="state") String state
-                                , HttpServletRequest request){
+                                , HttpServletRequest request
+                                , HttpServletResponse response){
             AccessTokenDto accessTokenDto = new AccessTokenDto();
             accessTokenDto.setClient_id(ClientId);
             accessTokenDto.setClient_secret(ClientSecret);
@@ -46,18 +52,19 @@ public class AuthorizedController {
             accessTokenDto.setState(state);
             String accessToken = gitHubProvider.getAccessToken(accessTokenDto);
             GitHubUser gitHubUser = gitHubProvider.getUser(accessToken);
-            if(gitHubUser!=null){
+            if(gitHubUser!=null && gitHubUser.getId() != null){
                 User user = new User();
                 user.setAccountId(String.valueOf(gitHubUser.getId()));
-                user.setToken(UUID.randomUUID().toString());
+                String token = UUID.randomUUID().toString();
+                user.setToken(token);
                 user.setName(gitHubUser.getName());
                 user.setGmtCreate(System.currentTimeMillis());
                 user.setGmtModified(user.getGmtCreate());
+                user.setAvatarUrl(gitHubUser.getAvatar_url());
                 //持久化到数据库
                 userMapper.insert(user);
-                //登录成功,给cookie
-                HttpSession session = request.getSession();
-                session.setAttribute("user",gitHubUser);
+                //把tocken写入cookie
+                response.addCookie(new Cookie("token",token));
                 return "redirect:/"; //这里注意重定向 /
             }else {
                 //登录失败返回首页
