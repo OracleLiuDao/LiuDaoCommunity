@@ -5,6 +5,7 @@ import com.liudaokk.communit.dto.GitHubUser;
 import com.liudaokk.communit.mapper.UserMapper;
 import com.liudaokk.communit.model.User;
 import com.liudaokk.communit.provider.GitHubProvider;
+import com.liudaokk.communit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -37,7 +38,7 @@ public class AuthorizedController {
         //引入user接口操作sql语句
         @SuppressWarnings("all")
         @Autowired
-        private UserMapper userMapper;
+        private UserService userService;
 
         @GetMapping("/callback")
         public String callback(@RequestParam(name="code") String code,
@@ -60,9 +61,9 @@ public class AuthorizedController {
                 user.setName(gitHubUser.getName());
                 user.setGmtCreate(System.currentTimeMillis());
                 user.setGmtModified(user.getGmtCreate());
-                user.setAvatarUrl(gitHubUser.getAvatar_url());
+                user.setAvatarUrl(gitHubUser.getAvatarUrl());
                 //持久化到数据库
-                userMapper.insert(user);
+                userService.createOrUpdate(user);
                 //把tocken写入cookie
                 response.addCookie(new Cookie("token",token));
                 return "redirect:/"; //这里注意重定向 /
@@ -71,4 +72,13 @@ public class AuthorizedController {
                 return "redirect:/";
             }
         }
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request,
+                         HttpServletResponse response) {
+        request.getSession().removeAttribute("user");
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
+    }
     }

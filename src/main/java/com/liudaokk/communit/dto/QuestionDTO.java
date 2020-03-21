@@ -1,15 +1,16 @@
-package com.liudaokk.communit.model;
+package com.liudaokk.communit.dto;
 
+import com.liudaokk.communit.model.User;
 import lombok.Data;
 
 /**
  * @author:liudao
  * @company:null
- * @date: 2020/3/19 - 11:37
+ * @date: 2020/3/19 - 16:39
  */
-//提问对象
+//传输层的提问对象,
 @Data
-public class Question {
+public class QuestionDTO {
     private Integer id;
     private String title;
     private String description;
@@ -20,5 +21,5 @@ public class Question {
     private Integer viewCount;
     private Integer commentCount;
     private Integer likeCount;
-
+    private User user;
 }
